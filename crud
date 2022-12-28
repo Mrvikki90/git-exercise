@@ -1,0 +1,144 @@
+import React, { useState } from "react";
+import { useEffect } from "react";
+import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
+  ModalCloseButton,
+  useDisclosure,
+  Button,
+} from "@chakra-ui/react";
+import {
+  FormControl,
+  FormLabel,
+  Input,
+  FormHelperText,
+} from "@chakra-ui/react";
+
+function App() {
+  const [name, setName] = useState("");
+  const [id, setId] = useState("");
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const getData = () => {
+    const data = localStorage.getItem("users");
+    if (data) {
+      return JSON.parse(data);
+    } else {
+      return [];
+    }
+  };
+
+
+  
+
+  const [student, setStudent] = useState(getData);
+
+  const handleForm = (e) => {
+    e.preventDefault();
+    let students = {
+      id: id,
+      name: name,
+    };
+    setStudent([...student, students]);
+    setId("");
+    setName("");
+  };
+
+  useEffect(() => {
+    localStorage.setItem("users", JSON.stringify(student));
+  }, [student]);
+
+  // const memoValue = useCallback(hello}[counterOne]);
+
+  const deleteData = (itemId) => {
+    const fiterUsers = student.filter((item, index) => {
+      return item.id !== itemId;
+    });
+    setStudent(fiterUsers);
+  };
+
+  const updateData = (todo, index) => {
+    onOpen();
+    setId(index);
+    setName(todo.name);
+  };
+
+  const updateUser = () => {
+    let newStudents = [...student];
+    let students = newStudents[id];
+    let obj = {
+      id: id,
+      name: name,
+    };
+    students.name = obj.name;
+    students.id = obj.id;
+    setStudent(newStudents);
+  };
+
+  const handleFormEdit = (e) => {
+    e.preventDefault();
+    updateUser();
+    onClose();
+  };
+
+  return (
+    <>
+      <div className="App">
+        <form action="" onSubmit={handleForm}>
+          <input type="text" onChange={(e) => setId(e.target.value)} />
+          <input type="text" onChange={(e) => setName(e.target.value)} />
+          <button type="submit">submit</button>
+        </form>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>id</th>
+            <th>name</th>
+          </tr>
+        </thead>
+        <tbody>
+          {student.map((item, index) => (
+            <tr>
+              <td>{item.id}</td>
+              <td>{item.name}</td>
+              <button onClick={() => deleteData(item.id)}>delete</button>
+              <button onClick={() => updateData(item, item.id)}>update</button>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Modal Title</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <form onSubmit={handleFormEdit}>
+              <FormControl>
+                <FormLabel>id</FormLabel>
+                <Input value={id} onChange={(e) => setId(e.target.value)} />
+              </FormControl>
+              <FormControl>
+                <FormLabel>Name</FormLabel>
+                <Input value={name} onChange={(e) => setName(e.target.value)} />
+              </FormControl>
+              <Button type="submit">update</Button>
+            </form>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Close
+            </Button>
+            <Button variant="ghost">Secondary Action</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    </>
+  );
+}
+export default App;
